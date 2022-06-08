@@ -1,39 +1,27 @@
 <script>
-import { h } from 'vue';
-import Calendar from '../Calendar/Calendar.vue';
-import Popover from '../Popover/Popover.vue';
-import TimePicker from '../TimePicker/TimePicker.vue';
-import { rootMixin } from '../../utils/mixins';
-import { getDefault } from '../../utils/defaults';
-import {
-  datesAreEqual,
-  createGuid,
-  elementContains,
-  pageIsBetweenPages,
-  on,
-  off,
-} from '../../utils/helpers';
-import { isObject, isArray, defaultsDeep } from '../../utils/_';
-import {
-  showPopover as sp,
-  hidePopover as hp,
-  togglePopover as tp,
-  getPopoverTriggerEvents,
-} from '../../utils/popovers';
-import { PATCH } from '../../utils/locale';
+import { h } from "vue";
+import Calendar from "../Calendar/Calendar.vue";
+import Popover from "../Popover/Popover.vue";
+import TimePicker from "../TimePicker/TimePicker.vue";
+import { rootMixin } from "../../utils/mixins";
+import { getDefault } from "../../utils/defaults";
+import { createGuid, datesAreEqual, elementContains, off, on, pageIsBetweenPages } from "../../utils/helpers";
+import { defaultsDeep, isArray, isObject } from "../../utils/_";
+import { getPopoverTriggerEvents, hidePopover as hp, showPopover as sp, togglePopover as tp } from "../../utils/popovers";
+import { PATCH } from "../../utils/locale";
 
 const _baseConfig = {
-  type: 'auto',
-  mask: 'iso', // String mask when `type === 'string'`
-  timeAdjust: '', // 'HH:MM:SS', 'now'
+  type: "auto",
+  mask: "iso", // String mask when `type === 'string'`
+  timeAdjust: "", // 'HH:MM:SS', 'now'
 };
 
 const _config = [_baseConfig, _baseConfig];
 
 const MODE = {
-  DATE: 'date',
-  DATE_TIME: 'datetime',
-  TIME: 'time',
+  DATE: "date",
+  DATE_TIME: "datetime",
+  TIME: "time",
 };
 const RANGE_PRIORITY = {
   NONE: 0,
@@ -43,17 +31,8 @@ const RANGE_PRIORITY = {
 };
 
 export default {
-  name: 'DatePicker',
-  emits: [
-    'update:modelValue',
-    'drag',
-    'dayclick',
-    'daykeydown',
-    'popover-will-show',
-    'popover-did-show',
-    'popover-will-hide',
-    'popover-did-hide',
-  ],
+  name: "DatePicker",
+  emits: ["update:modelValue", "drag", "dayclick", "daykeydown", "popover-will-show", "popover-did-show", "popover-will-hide", "popover-did-hide"],
   render() {
     // Footer
     const footer = (wrap, wrapperEl) => {
@@ -67,20 +46,14 @@ export default {
       if (!this.dateParts) return null;
       const parts = this.isRange ? this.dateParts : [this.dateParts[0]];
       return h(
-        'div',
+        "div",
         {},
         {
           ...this.$slots,
           default: () =>
             parts.map((dp, idx) => {
-              const hourOptions = this.$locale.getHourOptions(
-                this.modelConfig_[idx].validHours,
-                dp,
-              );
-              const minuteOptions = this.$locale.getMinuteOptions(
-                this.modelConfig_[idx].minuteIncrement,
-                dp,
-              );
+              const hourOptions = this.$locale.getHourOptions(this.modelConfig_[idx].validHours, dp);
+              const minuteOptions = this.$locale.getMinuteOptions(this.modelConfig_[idx].minuteIncrement, dp);
               return h(TimePicker, {
                 modelValue: dp,
                 locale: this.$locale,
@@ -90,7 +63,7 @@ export default {
                 isDisabled: (this.isDateTime && !dp.isValid) || this.isDragging,
                 hourOptions,
                 minuteOptions,
-                'onUpdate:modelValue': p => this.onTimeInput(p, idx === 0),
+                "onUpdate:modelValue": p => this.onTimeInput(p, idx === 0),
               });
             }),
         },
@@ -113,7 +86,7 @@ export default {
           onDayclick: this.onDayClick,
           onDaykeydown: this.onDayKeydown,
           onDaymouseenter: this.onDayMouseEnter,
-          ref: 'calendar',
+          ref: "calendar",
         },
         {
           ...this.$slots,
@@ -125,22 +98,18 @@ export default {
     const content = () => {
       if (this.isTime) {
         return h(
-          'div',
+          "div",
           {
-            class: [
-              'vc-container',
-              `vc-${this.$theme.color}`,
-              { 'vc-is-dark': this.$theme.isDark },
-            ],
+            class: ["vc-container", `vc-${this.$theme.color}`, { "vc-is-dark": this.$theme.isDark }],
           },
-          footer(timePicker(), 'div'),
+          footer(timePicker(), "div"),
         );
       }
       return calendar();
     };
 
     return this.$slots.default
-      ? h('div', [
+      ? h("div", [
           // Slot content
           this.$slots.default(this.slotArgs),
           // Popover content
@@ -148,13 +117,13 @@ export default {
             Popover,
             {
               id: this.datePickerPopoverId,
-              placement: 'bottom-start',
-              contentClass: `vc-container${this.isDark ? ' vc-is-dark' : ''}`,
-              'on-before-show': e => this.$emit('popover-will-show', e),
-              'on-after-show': e => this.$emit('popover-did-show', e),
-              'on-before-hide': e => this.$emit('popover-will-hide', e),
-              'on-after-hide': e => this.$emit('popover-did-hide', e),
-              ref: 'popover',
+              placement: "bottom-start",
+              contentClass: `vc-container${this.isDark ? " vc-is-dark" : ""}`,
+              "on-before-show": e => this.$emit("popover-will-show", e),
+              "on-after-show": e => this.$emit("popover-did-show", e),
+              "on-before-hide": e => this.$emit("popover-will-hide", e),
+              "on-after-hide": e => this.$emit("popover-did-hide", e),
+              ref: "popover",
             },
             {
               default: content,
@@ -172,13 +141,14 @@ export default {
     minuteIncrement: Number,
     isRequired: Boolean,
     isRange: Boolean,
+    changingRangePart: String,
     updateOnInput: {
       type: Boolean,
-      default: () => getDefault('datePicker.updateOnInput'),
+      default: () => getDefault("datePicker.updateOnInput"),
     },
     inputDebounce: {
       type: Number,
-      default: () => getDefault('datePicker.inputDebounce'),
+      default: () => getDefault("datePicker.inputDebounce"),
     },
     popover: { type: Object, default: () => ({}) },
     dragAttribute: Object,
@@ -190,9 +160,9 @@ export default {
     return {
       value_: null,
       dateParts: null,
-      activeDate: '',
+      activeDate: "",
       dragValue: null,
-      inputValues: ['', ''],
+      inputValues: ["", ""],
       updateTimeout: null,
       watchValue: true,
       datePickerPopoverId: createGuid(),
@@ -239,14 +209,7 @@ export default {
       return undefined;
     },
     slotArgs() {
-      const {
-        isRange,
-        isDragging,
-        updateValue,
-        showPopover,
-        hidePopover,
-        togglePopover,
-      } = this;
+      const { isRange, isDragging, updateValue, showPopover, hidePopover, togglePopover } = this;
       const inputValue = isRange
         ? {
             start: this.inputValues[0],
@@ -261,7 +224,7 @@ export default {
           ...this.popover_,
           id: this.datePickerPopoverId,
           callback: e => {
-            if (e.action === 'show' && e.completed) {
+            if (e.action === "show" && e.completed) {
               this.onInputShow(isStart);
             }
           },
@@ -285,12 +248,12 @@ export default {
       };
     },
     popover_() {
-      return defaultsDeep(this.popover, getDefault('datePicker.popover'));
+      return defaultsDeep(this.popover, getDefault("datePicker.popover"));
     },
     selectAttribute_() {
       if (!this.hasValue(this.value_)) return null;
       const attribute = {
-        key: 'select-drag',
+        key: "select-drag",
         ...this.selectAttribute,
         dates: this.value_,
         pinPage: true,
@@ -306,7 +269,7 @@ export default {
         return null;
       }
       const attribute = {
-        key: 'select-drag',
+        key: "select-drag",
         ...this.dragAttribute,
         dates: this.dragValue,
       };
@@ -314,7 +277,7 @@ export default {
       if (!dot && !bar && !highlight && !content) {
         attribute.highlight = {
           startEnd: {
-            fillMode: 'outline',
+            fillMode: "outline",
           },
         };
       }
@@ -354,12 +317,7 @@ export default {
     },
   },
   created() {
-    this.value_ = this.normalizeValue(
-      this.modelValue,
-      this.modelConfig_,
-      PATCH.DATE_TIME,
-      RANGE_PRIORITY.BOTH,
-    );
+    this.value_ = this.normalizeValue(this.modelValue, this.modelConfig_, PATCH.DATE_TIME, RANGE_PRIORITY.BOTH);
     this.forceUpdateValue(this.modelValue, {
       config: this.modelConfig_,
       formatInput: true,
@@ -369,14 +327,14 @@ export default {
   },
   mounted() {
     // Handle escape key presses
-    on(document, 'keydown', this.onDocumentKeyDown);
+    on(document, "keydown", this.onDocumentKeyDown);
     // Clear drag on background click
-    on(document, 'click', this.onDocumentClick);
+    on(document, "click", this.onDocumentClick);
   },
   beforeUnmount() {
     // Clean up handlers
-    off(document, 'keydown', this.onDocumentKeyDown);
-    off(document, 'click', this.onDocumentClick);
+    off(document, "keydown", this.onDocumentKeyDown);
+    off(document, "click", this.onDocumentClick);
   },
   methods: {
     getDateParts(date) {
@@ -408,15 +366,12 @@ export default {
     },
     onDocumentKeyDown(e) {
       // Clear drag on escape keydown
-      if (this.dragValue && e.key === 'Escape') {
+      if (this.dragValue && e.key === "Escape") {
         this.dragValue = null;
       }
     },
     onDocumentClick(e) {
-      if (
-        document.body.contains(e.target) &&
-        !elementContains(this.$el, e.target)
-      ) {
+      if (document.body.contains(e.target) && !elementContains(this.$el, e.target)) {
         this.dragValue = null;
         this.formatInput();
       }
@@ -424,22 +379,22 @@ export default {
     onDayClick(day) {
       this.handleDayClick(day);
       // Re-emit event
-      this.$emit('dayclick', day);
+      this.$emit("dayclick", day);
     },
     onDayKeydown(day) {
       switch (day.event.key) {
-        case ' ':
-        case 'Enter': {
+        case " ":
+        case "Enter": {
           this.handleDayClick(day);
           day.event.preventDefault();
           break;
         }
-        case 'Escape': {
+        case "Escape": {
           this.hidePopover();
         }
       }
       // Re-emit event
-      this.$emit('daykeydown', day);
+      this.$emit("daykeydown", day);
     },
     handleDayClick(day) {
       const { keepVisibleOnInput, visibility } = this.popover_;
@@ -447,19 +402,31 @@ export default {
         patch: PATCH.DATE,
         adjustTime: true,
         formatInput: true,
-        hidePopover:
-          this.isDate && !keepVisibleOnInput && visibility !== 'visible',
+        hidePopover: this.isDate && !keepVisibleOnInput && visibility !== "visible",
       };
       if (this.isRange) {
+        const okToChangeStartDate = !this.isDragging && "start" === this.changingRangePart && this.dragTrackingValue?.start && day.date.getTime() <= this.dragTrackingValue.end;
+        const okToChangeEndDate = !this.isDragging && "end" === this.changingRangePart && this.dragTrackingValue?.end && day.date.getTime() >= this.dragTrackingValue.start;
+        const shouldChangeIsDragging = !okToChangeEndDate && !okToChangeStartDate;
+
         if (!this.isDragging) {
-          this.dragTrackingValue = { ...day.range };
+          if (okToChangeStartDate) {
+            this.dragTrackingValue.start = day.date;
+          } else if (okToChangeEndDate) {
+            this.dragTrackingValue.end = day.date;
+          } else {
+            this.dragTrackingValue = { ...day.range };
+            day.rangeWasReset = true;
+          }
         } else {
           this.dragTrackingValue.end = day.date;
         }
-        opts.isDragging = !this.isDragging;
-        opts.rangePriority = opts.isDragging
-          ? RANGE_PRIORITY.NONE
-          : RANGE_PRIORITY.BOTH;
+
+        if (shouldChangeIsDragging) {
+          opts.isDragging = !this.isDragging;
+        }
+
+        opts.rangePriority = opts.isDragging ? RANGE_PRIORITY.NONE : RANGE_PRIORITY.BOTH;
         opts.hidePopover = opts.hidePopover && !opts.isDragging;
         this.updateValue(this.dragTrackingValue, opts);
       } else {
@@ -519,7 +486,7 @@ export default {
           }
         : inputValue;
       const config = {
-        type: 'string',
+        type: "string",
         mask: this.inputMask,
       };
       this.updateValue(value, {
@@ -534,7 +501,7 @@ export default {
     },
     onInputKeyup(e) {
       // Escape key only
-      if (e.key !== 'Escape') return;
+      if (e.key !== "Escape") return;
       this.updateValue(this.value_, {
         formatInput: true,
         hidePopover: true,
@@ -556,9 +523,7 @@ export default {
       });
     },
     normalizeConfig(config, baseConfig = this.modelConfig_) {
-      config = isArray(config)
-        ? config
-        : [config.start || config, config.end || config];
+      config = isArray(config) ? config : [config.start || config, config.end || config];
       return baseConfig.map((b, i) => ({
         validHours: this.validHours,
         minuteIncrement: this.minuteIncrement,
@@ -580,12 +545,7 @@ export default {
     ) {
       // 1. Normalization
       config = this.normalizeConfig(config);
-      let normalizedValue = this.normalizeValue(
-        value,
-        config,
-        patch,
-        rangePriority,
-      );
+      let normalizedValue = this.normalizeValue(value, config, patch, rangePriority);
 
       // Reset to previous value if it was cleared but is required
       if (!normalizedValue && this.isRequired) {
@@ -605,7 +565,7 @@ export default {
       }
 
       // 3. Assignment
-      const valueKey = isDragging ? 'dragValue' : 'value_';
+      const valueKey = isDragging ? "dragValue" : "value_";
       let valueChanged = !this.valuesAreEqual(this[valueKey], normalizedValue);
 
       // Clear value if same value selected and clearIfEqual is set
@@ -622,7 +582,7 @@ export default {
         // Denormalization
         const denormalizedValue = this.denormalizeValue(normalizedValue);
         // Notification
-        const event = this.isDragging ? 'drag' : 'update:modelValue';
+        const event = this.isDragging ? "drag" : "update:modelValue";
         this.watchValue = false;
         this.$emit(event, denormalizedValue);
         this.$nextTick(() => (this.watchValue = true));
@@ -709,26 +669,19 @@ export default {
       return datesAreEqual(a, b);
     },
     valueIsDisabled(value) {
-      return (
-        this.hasValue(value) &&
-        this.disabledAttribute &&
-        this.disabledAttribute.intersectsDate(value)
-      );
+      return this.hasValue(value) && this.disabledAttribute && this.disabledAttribute.intersectsDate(value);
     },
     formatInput() {
       this.$nextTick(() => {
         const config = this.normalizeConfig({
-          type: 'string',
+          type: "string",
           mask: this.inputMask,
         });
-        const value = this.denormalizeValue(
-          this.dragValue || this.value_,
-          config,
-        );
+        const value = this.denormalizeValue(this.dragValue || this.value_, config);
         if (this.isRange) {
           this.inputValues = [value && value.start, value && value.end];
         } else {
-          this.inputValues = [value, ''];
+          this.inputValues = [value, ""];
         }
       });
     },
@@ -763,23 +716,17 @@ export default {
         const calendar = this.$refs.calendar;
         const page = this.getPageForValue(isStart);
         const position = isStart ? 1 : -1;
-        if (
-          page &&
-          calendar &&
-          !pageIsBetweenPages(page, calendar.firstPage, calendar.lastPage)
-        ) {
+        if (page && calendar && !pageIsBetweenPages(page, calendar.firstPage, calendar.lastPage)) {
           calendar.move(page, {
             position,
-            transition: 'fade',
+            transition: "fade",
           });
         }
       });
     },
     getPageForValue(isStart) {
       if (this.hasValue(this.value_)) {
-        return this.pageForDate(
-          this.isRange ? this.value_[isStart ? 'start' : 'end'] : this.value_,
-        );
+        return this.pageForDate(this.isRange ? this.value_[isStart ? "start" : "end"] : this.value_);
       }
       return null;
     },
@@ -787,17 +734,13 @@ export default {
       if (this.$refs.calendar) {
         return this.$refs.calendar.move(args, opts);
       }
-      return Promise.reject(
-        new Error('Navigation disabled while calendar is not yet displayed'),
-      );
+      return Promise.reject(new Error("Navigation disabled while calendar is not yet displayed"));
     },
     focusDate(date, opts) {
       if (this.$refs.calendar) {
         return this.$refs.calendar.focusDate(date, opts);
       }
-      return Promise.reject(
-        new Error('Navigation disabled while calendar is not yet displayed'),
-      );
+      return Promise.reject(new Error("Navigation disabled while calendar is not yet displayed"));
     },
   },
 };
