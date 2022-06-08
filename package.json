@@ -39,7 +39,8 @@
     "build": "vite build",
     "analyze": "vite build --config analyze.config.ts",
     "test": "yarn jest",
-    "lint": "eslint . --ext .js,.vue"
+    "lint": "eslint . --ext .js,.vue",
+    "prepare": "vite build"
   },
   "dependencies": {
     "@popperjs/core": "2.4.0",
