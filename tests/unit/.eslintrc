@@ -1,7 +1,10 @@
 {
-  "env": { 
+  "env": {
     "jest": true
   },
-  "globals": { 
+  "globals": {
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
