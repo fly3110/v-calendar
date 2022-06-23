@@ -1,4 +1,4 @@
-@import '../components/Calendar/calendar.css';
+@import '../components/Calendar/calendar.scss';
 @import '../components/CalendarDay/calendar-day.css';
 @import '../components/CalendarNav/calendar-nav.css';
 @import '../components/CalendarPane/calendar-pane.css';

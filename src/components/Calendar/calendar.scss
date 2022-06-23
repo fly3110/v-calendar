@@ -1,6 +1,7 @@
 .vc-pane-container {
   width: 100%;
   position: relative;
+
   &.in-transition {
     overflow: hidden;
   }
@@ -22,12 +23,15 @@
   border-style: solid;
   border-radius: var(--rounded);
   border-color: transparent;
+
   &:hover {
     background: var(--gray-200);
   }
+
   &:focus {
     border-color: var(--gray-300);
   }
+
   &.is-disabled {
     opacity: 0.25;
     pointer-events: none;
@@ -62,9 +66,11 @@
   justify-content: space-between;
   padding: 8px 10px;
   pointer-events: none;
+
   &.title-left {
     justify-content: flex-end;
   }
+
   &.title-right {
     justify-content: flex-start;
   }
@@ -73,18 +79,22 @@
 .vc-is-dark {
   & .vc-arrow {
     color: var(--white);
+
     &:hover {
       background: var(--gray-800);
     }
+
     &:focus {
       border-color: var(--gray-700);
     }
   }
+
   & .vc-day-popover-container {
     color: var(--gray-800);
     background-color: var(--white);
     border-color: var(--gray-100);
   }
+
   & .vc-day-popover-header {
     color: var(--gray-700);
   }
